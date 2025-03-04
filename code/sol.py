@@ -29,13 +29,13 @@ delta_F_thrust_1 = 38 * 1e3
 F_thrust_3 = 4100 * 1e3
 delta_F_thrust_3 = - 700 * 1e3
 F_thrust_2 = 700 * 1e3     # Н (Вторая ступень)
-delta_F_thrust_2 = 8.1 * 1e3
+delta_F_thrust_2 = 8 * 1e3
 
 alpha_0 = np.pi / 2  # Начальный угол тангажа (90°)
 alpha_1 = np.deg2rad(54.5)  # Угол после первой ступени
 delta_alpha = -np.deg2rad(0.4)  # Изменение угла тангажа (первая ступень)
-delta_alpha2 = -np.deg2rad(0.55)  # Изменение угла тангажа (вторая ступень)
-alpha_min = np.deg2rad(8)        # Мин. угол тангажа
+delta_alpha2 = -np.deg2rad(0.65)  # Изменение угла тангажа (вторая ступень)
+alpha_min = np.deg2rad(12)        # Мин. угол тангажа
 alpha_max = np.deg2rad(350)      # Макс. угол тангажа
 
 first_stage_time = 54.7          # Работа первой ступени (с)
@@ -97,8 +97,8 @@ def rocket_motion(t, y):
 x0, y0 = 0, R_earth
 vx0, vy0 = 0, 0
 
-t_span = (0, 192)  # Время интегрирования
-t_eval = np.linspace(0, 192, 100000)  # Точки, где считаем решение
+t_span = (0, 180)  # Время интегрирования
+t_eval = np.linspace(0, 180, 100000)  # Точки, где считаем решение
 y0 = [x0, y0, vx0, vy0]
 
 # Решение системы
@@ -129,17 +129,18 @@ with open('C:\\Users\\ValCombucha\\pictures\\telemetryaaaa(отриц).csv') as 
         speed_y = data[-2]
         dpitch = data[-1]
         # Ограничиваем время 180 секундами
-
-        datax.append(data[1] - 159784.5243943922)
-        datay.append(data[2])
-        dataz.append(data[3])
-        datamass.append(data[4])
-        data_altitude.append(data[5])
-        dataspeed_x.append(speed_x)
-        dataspeed_y.append(speed_y)
-        data_t.append(t)
-        dataspeed.append(np.sqrt(speed_x**2 + speed_y**2))
-        datapitch.append(dpitch)
+        if t <= 180.0:
+            datax.append(data[1] - 159784.5243943922)
+            datay.append(data[2])
+            dataz.append(data[3])
+            datamass.append(data[4])
+            data_altitude.append(data[5])
+            dataspeed_x.append(speed_x)
+            dataspeed_y.append(speed_y)
+            
+            data_t.append(t)
+            dataspeed.append(np.sqrt(speed_x**2 + speed_y**2))
+            datapitch.append(dpitch)
 
 data_t2 = []
 for i in range(10, len(data_t), 10):
@@ -183,8 +184,8 @@ axs[0, 0].legend()
 axs[0, 0].grid()
 
 # Координата Y
-axs[0, 1].plot(sol.t, y, label='Координата Y (матмодель)', color='r')
-axs[0, 1].plot(data_t, -(np.array(dataz) + 579000) + R_earth, label='Координата Y (KSP)', color='b')
+axs[0, 1].plot(sol.t, y - R_earth + 600000, label='Координата Y (матмодель)', color='r')
+axs[0, 1].plot(data_t, -(np.array(dataz) + 579000) + 600000, label='Координата Y (KSP)', color='b')
 axs[0, 1].set_xlabel('Время, с')
 axs[0, 1].set_ylabel('Y, м')
 axs[0, 1].legend()
